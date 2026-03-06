@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import type { Id } from "../../../../convex/_generated/dataModel";
+import { authClient } from "#/lib/auth-client";
 import { Sticker } from "#/components/sticker";
 import { StickerLoader } from "#/components/sticker-loader";
 import { StickerPage } from "#/components/sticker-page";
@@ -11,6 +12,8 @@ import { FloatingMenu } from "#/components/floating-menu";
 import { DeleteConfirmDialog } from "#/components/delete-confirm-dialog";
 import { MoveBanner } from "#/components/move-banner";
 import { useContextMenu } from "#/hooks/use-context-menu";
+
+const ADMIN_EMAIL = "ethan.martin@hey.com";
 
 export const Route = createFileRoute("/_app/_authenticated/")({
   component: HomePage,
@@ -38,6 +41,10 @@ function HomePage() {
   const updateMerchant = useMutation(api.functions.merchants.update);
   const removeMerchant = useMutation(api.functions.merchants.remove);
 
+  const { data: session } = authClient.useSession();
+  const isAdmin = session?.user?.email === ADMIN_EMAIL;
+  const createInvite = useMutation(api.functions.invites.create);
+
   const menu = useContextMenu<StickerTarget>();
   const [createType, setCreateType] = useState<
     "room" | "category" | "merchant" | null
@@ -45,6 +52,7 @@ function HomePage() {
   const [editing, setEditing] = useState<StickerTarget | null>(null);
   const [deleting, setDeleting] = useState<StickerTarget | null>(null);
   const [moving, setMoving] = useState<StickerTarget | null>(null);
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
 
   // Escape key cancels move mode
   useEffect(() => {
@@ -186,11 +194,26 @@ function HomePage() {
     >
       <h1 className="font-display text-3xl font-bold text-center mb-10">
         Tara's home
+        {isAdmin && (
+          <button
+            type="button"
+            title={inviteLink ? "Copied!" : "Generate invite link"}
+            onClick={async () => {
+              const code = await createInvite();
+              const link = `${window.location.origin}/signup?code=${code}`;
+              await navigator.clipboard.writeText(link);
+              setInviteLink(link);
+              setTimeout(() => setInviteLink(null), 2000);
+            }}
+            className="inline-block w-2.5 h-2.5 rounded-full border-2 border-white cursor-pointer hover:scale-150 transition-transform ml-0.5 align-baseline"
+            style={{ backgroundColor: inviteLink ? "#B5EAD7" : "#C7CEEA" }}
+          />
+        )}
       </h1>
 
       {allStickers.length === 0 ? (
         <p className="text-center text-muted-foreground py-20">
-          Right-click to get started
+          Right-click to add your rooms
         </p>
       ) : (
         <StickerPage seed={7}>

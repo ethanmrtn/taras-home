@@ -50,4 +50,11 @@ export default defineSchema({
     name: v.string(),
     shape: v.string(),
   }),
+  invites: defineTable({
+    code: v.string(),
+    createdBy: v.string(),
+    used: v.boolean(),
+    usedBy: v.optional(v.string()),
+    createdAt: v.number(),
+  }).index("by_code", ["code"]),
 });

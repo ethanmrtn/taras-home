@@ -129,7 +129,7 @@ function MerchantPage() {
       {/* Items */}
       {items.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">
-          Right-click to add an item
+          Right-click to add a thing
         </p>
       ) : (
         <StickerPage seed={merchantId.charCodeAt(0)}>

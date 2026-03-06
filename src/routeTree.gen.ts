@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AppSignupRouteImport } from './routes/_app/signup'
 import { Route as AppLoginRouteImport } from './routes/_app/login'
 import { Route as AppAuthenticatedRouteImport } from './routes/_app/_authenticated'
 import { Route as AppAuthenticatedIndexRouteImport } from './routes/_app/_authenticated/index'
@@ -18,6 +19,11 @@ import { Route as AppAuthenticatedMerchantsMerchantIdRouteImport } from './route
 import { Route as AppAuthenticatedItemsItemIdRouteImport } from './routes/_app/_authenticated/items/$itemId'
 import { Route as AppAuthenticatedCategoriesCategoryIdRouteImport } from './routes/_app/_authenticated/categories/$categoryId'
 
+const AppSignupRoute = AppSignupRouteImport.update({
+  id: '/_app/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppLoginRoute = AppLoginRouteImport.update({
   id: '/_app/login',
   path: '/login',
@@ -65,6 +71,7 @@ const AppAuthenticatedCategoriesCategoryIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AppAuthenticatedIndexRoute
   '/login': typeof AppLoginRoute
+  '/signup': typeof AppSignupRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/categories/$categoryId': typeof AppAuthenticatedCategoriesCategoryIdRoute
   '/items/$itemId': typeof AppAuthenticatedItemsItemIdRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof AppLoginRoute
+  '/signup': typeof AppSignupRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/': typeof AppAuthenticatedIndexRoute
   '/categories/$categoryId': typeof AppAuthenticatedCategoriesCategoryIdRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app/_authenticated': typeof AppAuthenticatedRouteWithChildren
   '/_app/login': typeof AppLoginRoute
+  '/_app/signup': typeof AppSignupRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/_app/_authenticated/': typeof AppAuthenticatedIndexRoute
   '/_app/_authenticated/categories/$categoryId': typeof AppAuthenticatedCategoriesCategoryIdRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/signup'
     | '/api/auth/$'
     | '/categories/$categoryId'
     | '/items/$itemId'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
+    | '/signup'
     | '/api/auth/$'
     | '/'
     | '/categories/$categoryId'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_app/_authenticated'
     | '/_app/login'
+    | '/_app/signup'
     | '/api/auth/$'
     | '/_app/_authenticated/'
     | '/_app/_authenticated/categories/$categoryId'
@@ -125,11 +137,19 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AppAuthenticatedRoute: typeof AppAuthenticatedRouteWithChildren
   AppLoginRoute: typeof AppLoginRoute
+  AppSignupRoute: typeof AppSignupRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_app/signup': {
+      id: '/_app/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof AppSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app/login': {
       id: '/_app/login'
       path: '/login'
@@ -213,6 +233,7 @@ const AppAuthenticatedRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AppAuthenticatedRoute: AppAuthenticatedRouteWithChildren,
   AppLoginRoute: AppLoginRoute,
+  AppSignupRoute: AppSignupRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

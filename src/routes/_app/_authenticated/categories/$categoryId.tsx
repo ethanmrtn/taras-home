@@ -73,7 +73,7 @@ function CategoryPage() {
       </h1>
       {merchants.length === 0 ? (
         <p className="text-center text-muted-foreground py-20">
-          Right-click to add a merchant
+          Right-click to add a brand
         </p>
       ) : (
         <StickerPage seed={categoryId.charCodeAt(0)}>
