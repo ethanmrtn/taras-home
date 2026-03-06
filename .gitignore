@@ -21,3 +21,4 @@ todos.json
 
 # Convex generated (regenerated on build)
 convex/_generated/
+.env.develop

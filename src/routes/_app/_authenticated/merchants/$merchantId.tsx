@@ -81,9 +81,6 @@ function MerchantPage() {
     <main
       className="page-wrap py-8 page-enter"
       onContextMenu={(e) => menu.handleContextMenu(e)}
-      onTouchStart={(e) => menu.handleTouchStart(e)}
-      onTouchEnd={menu.handleTouchEnd}
-      onTouchMove={menu.handleTouchMove}
     >
       {/* Merchant info card */}
       <div className="flex flex-col items-center gap-4 mb-10 item-enter">
@@ -132,8 +129,7 @@ function MerchantPage() {
       {/* Items */}
       {items.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">
-          <span className="hint-click">Right-click</span>
-          <span className="hint-touch">Hold down</span> to add a thing
+          Right-click to add a thing
         </p>
       ) : (
         <StickerPage seed={merchantId.charCodeAt(0)}>
@@ -155,20 +151,6 @@ function MerchantPage() {
                   merchant: item.merchant,
                 })
               }
-              onTouchStart={(e) =>
-                menu.handleTouchStart(e, {
-                  id: item._id,
-                  name: item.name,
-                  color: item.color,
-                  shape: item.shape,
-                  price: item.price,
-                  url: item.url,
-                  merchant: item.merchant,
-                })
-              }
-              onTouchEnd={menu.handleTouchEnd}
-              onTouchMove={menu.handleTouchMove}
-              didLongPressRef={menu.didLongPressRef}
             />
           ))}
         </StickerPage>

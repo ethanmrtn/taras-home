@@ -154,12 +154,6 @@ function RoomPage() {
         }
         menu.handleContextMenu(e);
       }}
-      onTouchStart={(e) => {
-        if (moving) return;
-        menu.handleTouchStart(e);
-      }}
-      onTouchEnd={menu.handleTouchEnd}
-      onTouchMove={menu.handleTouchMove}
     >
       <h1 className="font-display text-3xl font-bold text-center mb-10">
         {currentRoom?.name || "Room"}
@@ -167,8 +161,7 @@ function RoomPage() {
 
       {stickers.length === 0 ? (
         <p className="text-center text-muted-foreground py-20">
-          <span className="hint-click">Right-click</span>
-          <span className="hint-touch">Hold down</span> to add a category or merchant
+          Right-click to add a category or brand
         </p>
       ) : (
         <StickerPage seed={roomId.charCodeAt(0)}>
@@ -191,18 +184,6 @@ function RoomPage() {
                   shape: s.shape,
                 })
               }
-              onTouchStart={(e) =>
-                menu.handleTouchStart(e, {
-                  type: s.type,
-                  id: s.id,
-                  name: s.name,
-                  color: s.color,
-                  shape: s.shape,
-                })
-              }
-              onTouchEnd={menu.handleTouchEnd}
-              onTouchMove={menu.handleTouchMove}
-              didLongPressRef={menu.didLongPressRef}
             />
           ))}
         </StickerPage>
