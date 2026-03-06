@@ -31,7 +31,7 @@ function ItemPage() {
   if (item === null) {
     return (
       <main className="page-wrap py-8">
-        <p className="text-center text-muted-foreground">Item not found</p>
+        <p className="text-center text-muted-foreground">Thing not found</p>
       </main>
     );
   }
@@ -78,7 +78,7 @@ function ItemPage() {
               } as React.CSSProperties
             }
           >
-            {merchant ? `View at ${merchant.name}` : "View at store"}
+            {merchant ? `View at ${merchant.name}` : "View"}
           </a>
         )}
       </div>

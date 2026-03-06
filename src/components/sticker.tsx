@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { cn } from "#/lib/utils";
 import { getShapeClass } from "#/lib/sticker-options";
 import { Link } from "@tanstack/react-router";
@@ -10,6 +11,10 @@ export function Sticker({
   className,
   style,
   onContextMenu,
+  onTouchStart,
+  onTouchEnd,
+  onTouchMove,
+  didLongPressRef,
   shaking,
   onMoveTarget,
   dimmed,
@@ -22,6 +27,10 @@ export function Sticker({
   className?: string;
   style?: React.CSSProperties;
   onContextMenu?: (e: React.MouseEvent) => void;
+  onTouchStart?: (e: React.TouchEvent) => void;
+  onTouchEnd?: (e: React.TouchEvent) => void;
+  onTouchMove?: (e: React.TouchEvent) => void;
+  didLongPressRef?: React.RefObject<boolean>;
   shaking?: boolean;
   onMoveTarget?: () => void;
   dimmed?: boolean;
@@ -71,7 +80,15 @@ export function Sticker({
   return (
     <Link
       to={href}
+      onClick={(e) => {
+        if (didLongPressRef?.current) {
+          e.preventDefault();
+        }
+      }}
       onContextMenu={onContextMenu}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onTouchMove={onTouchMove}
       className={shared}
       style={sharedStyle}
     >

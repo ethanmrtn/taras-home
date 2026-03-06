@@ -57,7 +57,7 @@ function MerchantPage() {
   if (merchant === null) {
     return (
       <main className="page-wrap py-8">
-        <p className="text-center text-muted-foreground">Merchant not found</p>
+        <p className="text-center text-muted-foreground">Brand not found</p>
       </main>
     );
   }
@@ -65,22 +65,25 @@ function MerchantPage() {
   const menuItems = menu.state.target
     ? [
         {
-          label: "Edit item",
+          label: "Edit thing",
           onClick: () => setEditing(menu.state.target),
         },
         { separator: true as const },
         {
-          label: "Delete item",
+          label: "Delete thing",
           variant: "destructive" as const,
           onClick: () => setDeleting(menu.state.target),
         },
       ]
-    : [{ label: "New item", onClick: () => setCreating(true) }];
+    : [{ label: "New thing", onClick: () => setCreating(true) }];
 
   return (
     <main
       className="page-wrap py-8 page-enter"
       onContextMenu={(e) => menu.handleContextMenu(e)}
+      onTouchStart={(e) => menu.handleTouchStart(e)}
+      onTouchEnd={menu.handleTouchEnd}
+      onTouchMove={menu.handleTouchMove}
     >
       {/* Merchant info card */}
       <div className="flex flex-col items-center gap-4 mb-10 item-enter">
@@ -121,7 +124,7 @@ function MerchantPage() {
               } as React.CSSProperties
             }
           >
-            Visit store
+            Visit site
           </a>
         )}
       </div>
@@ -129,7 +132,8 @@ function MerchantPage() {
       {/* Items */}
       {items.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">
-          Right-click to add a thing
+          <span className="hint-click">Right-click</span>
+          <span className="hint-touch">Hold down</span> to add a thing
         </p>
       ) : (
         <StickerPage seed={merchantId.charCodeAt(0)}>
@@ -151,6 +155,20 @@ function MerchantPage() {
                   merchant: item.merchant,
                 })
               }
+              onTouchStart={(e) =>
+                menu.handleTouchStart(e, {
+                  id: item._id,
+                  name: item.name,
+                  color: item.color,
+                  shape: item.shape,
+                  price: item.price,
+                  url: item.url,
+                  merchant: item.merchant,
+                })
+              }
+              onTouchEnd={menu.handleTouchEnd}
+              onTouchMove={menu.handleTouchMove}
+              didLongPressRef={menu.didLongPressRef}
             />
           ))}
         </StickerPage>
@@ -166,7 +184,7 @@ function MerchantPage() {
       <ItemFormDialog
         open={creating}
         onOpenChange={setCreating}
-        title="New item"
+        title="New thing"
         merchantId={merchantId as Id<"merchants">}
         onSubmit={async (data) => {
           await createItem({
@@ -180,7 +198,7 @@ function MerchantPage() {
       <ItemFormDialog
         open={editing !== null}
         onOpenChange={(open) => !open && setEditing(null)}
-        title="Edit item"
+        title="Edit thing"
         merchantId={merchantId as Id<"merchants">}
         initial={editing ?? undefined}
         submitLabel="Save"
@@ -201,7 +219,7 @@ function MerchantPage() {
         open={deleting !== null}
         onOpenChange={(open) => !open && setDeleting(null)}
         name={deleting?.name ?? ""}
-        type="item"
+        type="thing"
         onConfirm={async () => {
           if (!deleting) return;
           await removeItem({ id: deleting.id });

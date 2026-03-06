@@ -15,6 +15,9 @@ import { useContextMenu } from "#/hooks/use-context-menu";
 
 const ADMIN_EMAIL = "ethan.martin@hey.com";
 
+const displayType = (t: string) =>
+  t === "merchant" ? "brand" : t;
+
 export const Route = createFileRoute("/_app/_authenticated/")({
   component: HomePage,
 });
@@ -156,20 +159,20 @@ function HomePage() {
   const menuItems = menu.state.target
     ? [
         {
-          label: `Edit ${menu.state.target.type}`,
+          label: `Edit ${displayType(menu.state.target.type)}`,
           onClick: () => setEditing(menu.state.target),
         },
         ...(menu.state.target.type !== "room"
           ? [
               {
-                label: `Move ${menu.state.target.type}`,
+                label: `Move ${displayType(menu.state.target.type)}`,
                 onClick: () => setMoving(menu.state.target),
               },
             ]
           : []),
         { separator: true as const },
         {
-          label: `Delete ${menu.state.target.type}`,
+          label: `Delete ${displayType(menu.state.target.type)}`,
           variant: "destructive" as const,
           onClick: () => setDeleting(menu.state.target),
         },
@@ -177,7 +180,7 @@ function HomePage() {
     : [
         { label: "New room", onClick: () => setCreateType("room") },
         { label: "New category", onClick: () => setCreateType("category") },
-        { label: "New merchant", onClick: () => setCreateType("merchant") },
+        { label: "New brand", onClick: () => setCreateType("merchant") },
       ];
 
   return (
@@ -191,6 +194,12 @@ function HomePage() {
         }
         menu.handleContextMenu(e);
       }}
+      onTouchStart={(e) => {
+        if (moving) return;
+        menu.handleTouchStart(e);
+      }}
+      onTouchEnd={menu.handleTouchEnd}
+      onTouchMove={menu.handleTouchMove}
     >
       <h1 className="font-display text-3xl font-bold text-center mb-10">
         Tara's home
@@ -213,7 +222,8 @@ function HomePage() {
 
       {allStickers.length === 0 ? (
         <p className="text-center text-muted-foreground py-20">
-          Right-click to add your rooms
+          <span className="hint-click">Right-click</span>
+          <span className="hint-touch">Hold down</span> to add your rooms
         </p>
       ) : (
         <StickerPage seed={7}>
@@ -236,6 +246,18 @@ function HomePage() {
                   shape: s.shape,
                 })
               }
+              onTouchStart={(e) =>
+                menu.handleTouchStart(e, {
+                  type: s.type,
+                  id: s.id as Id<"rooms"> | Id<"categories"> | Id<"merchants">,
+                  name: s.name,
+                  color: s.color,
+                  shape: s.shape,
+                })
+              }
+              onTouchEnd={menu.handleTouchEnd}
+              onTouchMove={menu.handleTouchMove}
+              didLongPressRef={menu.didLongPressRef}
             />
           ))}
         </StickerPage>
@@ -277,7 +299,7 @@ function HomePage() {
       <StickerFormDialog
         open={createType === "merchant"}
         onOpenChange={(open) => !open && setCreateType(null)}
-        title="New merchant"
+        title="New brand"
         onSubmit={async (data) => {
           await createMerchant({ ...data, url: "" });
           setCreateType(null);
@@ -287,7 +309,7 @@ function HomePage() {
       <StickerFormDialog
         open={editing !== null}
         onOpenChange={(open) => !open && setEditing(null)}
-        title={editing ? `Edit ${editing.type}` : "Edit"}
+        title={editing ? `Edit ${displayType(editing.type)}` : "Edit"}
         initial={editing ?? undefined}
         submitLabel="Save"
         onSubmit={async (data) => {
@@ -317,7 +339,7 @@ function HomePage() {
         open={deleting !== null}
         onOpenChange={(open) => !open && setDeleting(null)}
         name={deleting?.name ?? ""}
-        type={deleting?.type ?? "room"}
+        type={displayType(deleting?.type ?? "room")}
         onConfirm={async () => {
           if (!deleting) return;
           if (deleting.type === "room") {

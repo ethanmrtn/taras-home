@@ -352,6 +352,14 @@ a {
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* ── Touch vs pointer help text ── */
+.hint-touch { display: none; }
+.hint-click { display: inline; }
+@media (pointer: coarse) {
+  .hint-touch { display: inline; }
+  .hint-click { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sticker-enter,
   .page-enter,
