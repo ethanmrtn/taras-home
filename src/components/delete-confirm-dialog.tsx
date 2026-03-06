@@ -23,7 +23,7 @@ export function DeleteConfirmDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent data-compact>
         <DialogHeader>
           <DialogTitle className="font-display">Delete {type}</DialogTitle>
           <DialogDescription>
