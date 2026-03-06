@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 
 type AddItem = { label: string; onClick: () => void };
 
@@ -15,7 +16,7 @@ export function MobileAddButton({ items }: { items: AddItem[] }) {
     }
   };
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       {expanded && (
@@ -60,6 +61,7 @@ export function MobileAddButton({ items }: { items: AddItem[] }) {
           +
         </button>
       </div>
-    </>
+    </>,
+    document.body,
   );
 }
