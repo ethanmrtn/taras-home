@@ -9,6 +9,7 @@ import { StickerPage } from "#/components/sticker-page";
 import { ItemFormDialog } from "#/components/item-form";
 import { FloatingMenu } from "#/components/floating-menu";
 import { DeleteConfirmDialog } from "#/components/delete-confirm-dialog";
+import { MobileAddButton } from "#/components/mobile-add-button";
 import { useContextMenu } from "#/hooks/use-context-menu";
 import { getShapeClass } from "#/lib/sticker-options";
 import { cn } from "#/lib/utils";
@@ -129,7 +130,7 @@ function MerchantPage() {
       {/* Items */}
       {items.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">
-          Right-click to add a thing
+          Add a thing
         </p>
       ) : (
         <StickerPage seed={merchantId.charCodeAt(0)}>
@@ -151,6 +152,20 @@ function MerchantPage() {
                   merchant: item.merchant,
                 })
               }
+              onEditTap={(rect) =>
+                menu.openAt(
+                  { x: rect.right, y: rect.top },
+                  {
+                    id: item._id,
+                    name: item.name,
+                    color: item.color,
+                    shape: item.shape,
+                    price: item.price,
+                    url: item.url,
+                    merchant: item.merchant,
+                  },
+                )
+              }
             />
           ))}
         </StickerPage>
@@ -161,6 +176,10 @@ function MerchantPage() {
         position={menu.state.position}
         items={menuItems}
         onClose={menu.close}
+      />
+
+      <MobileAddButton
+        items={[{ label: "New thing", onClick: () => setCreating(true) }]}
       />
 
       <ItemFormDialog

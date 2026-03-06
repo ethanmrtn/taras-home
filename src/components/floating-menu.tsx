@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "#/lib/utils";
 
@@ -19,10 +19,27 @@ export function FloatingMenu({
 }) {
   const menuRef = useRef<HTMLDivElement>(null);
 
+  // Clamp menu position to stay within viewport
+  useLayoutEffect(() => {
+    if (!open || !menuRef.current) return;
+    const rect = menuRef.current.getBoundingClientRect();
+    const margin = 8;
+    let x = position.x;
+    let y = position.y;
+    if (rect.right > window.innerWidth - margin)
+      x = window.innerWidth - rect.width - margin;
+    if (rect.bottom > window.innerHeight - margin)
+      y = window.innerHeight - rect.height - margin;
+    if (x < margin) x = margin;
+    if (y < margin) y = margin;
+    menuRef.current.style.left = `${x}px`;
+    menuRef.current.style.top = `${y}px`;
+  }, [open, position]);
+
   useEffect(() => {
     if (!open) return;
 
-    const handleClick = (e: MouseEvent) => {
+    const handleDismiss = (e: MouseEvent | TouchEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         onClose();
       }
@@ -32,11 +49,13 @@ export function FloatingMenu({
       if (e.key === "Escape") onClose();
     };
 
-    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("mousedown", handleDismiss);
+    document.addEventListener("touchstart", handleDismiss, { passive: true });
     document.addEventListener("scroll", handleScroll, true);
     document.addEventListener("keydown", handleKey);
     return () => {
-      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("mousedown", handleDismiss);
+      document.removeEventListener("touchstart", handleDismiss);
       document.removeEventListener("scroll", handleScroll, true);
       document.removeEventListener("keydown", handleKey);
     };

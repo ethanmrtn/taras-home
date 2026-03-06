@@ -352,6 +352,12 @@ a {
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* ── Touch-device-only visibility ── */
+.touch-only { display: none; }
+@media (pointer: coarse) {
+  .touch-only { display: flex; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sticker-enter,
   .page-enter,
