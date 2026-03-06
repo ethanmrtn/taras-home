@@ -67,17 +67,13 @@ function CategoryPage() {
     <main
       className="page-wrap py-8 page-enter"
       onContextMenu={(e) => menu.handleContextMenu(e)}
-      onTouchStart={(e) => menu.handleTouchStart(e)}
-      onTouchEnd={menu.handleTouchEnd}
-      onTouchMove={menu.handleTouchMove}
     >
       <h1 className="font-display text-3xl font-bold text-center mb-10">
         {currentCategory?.name || "Category"}
       </h1>
       {merchants.length === 0 ? (
         <p className="text-center text-muted-foreground py-20">
-          <span className="hint-click">Right-click</span>
-          <span className="hint-touch">Hold down</span> to add a brand
+          Right-click to add a brand
         </p>
       ) : (
         <StickerPage seed={categoryId.charCodeAt(0)}>
@@ -96,17 +92,6 @@ function CategoryPage() {
                   shape: m.shape,
                 })
               }
-              onTouchStart={(e) =>
-                menu.handleTouchStart(e, {
-                  id: m._id,
-                  name: m.name,
-                  color: m.color,
-                  shape: m.shape,
-                })
-              }
-              onTouchEnd={menu.handleTouchEnd}
-              onTouchMove={menu.handleTouchMove}
-              didLongPressRef={menu.didLongPressRef}
             />
           ))}
         </StickerPage>
