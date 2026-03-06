@@ -1,22 +1,6 @@
 import { cn } from "#/lib/utils";
+import { getShapeClass } from "#/lib/sticker-options";
 import { Link } from "@tanstack/react-router";
-
-type StickerShape =
-  | "circle"
-  | "rounded-square"
-  | "star"
-  | "heart"
-  | "cloud"
-  | "blob";
-
-const shapeClasses: Record<StickerShape, string> = {
-  circle: "rounded-full",
-  "rounded-square": "rounded-2xl",
-  star: "rounded-2xl",
-  heart: "rounded-2xl",
-  cloud: "rounded-[40%]",
-  blob: "rounded-[30%_70%_70%_30%_/_30%_30%_70%_70%]",
-};
 
 export function Sticker({
   name,
@@ -25,6 +9,7 @@ export function Sticker({
   href,
   className,
   style,
+  onContextMenu,
 }: {
   name: string;
   color: string;
@@ -32,12 +17,14 @@ export function Sticker({
   href: string;
   className?: string;
   style?: React.CSSProperties;
+  onContextMenu?: (e: React.MouseEvent) => void;
 }) {
-  const shapeClass = shapeClasses[shape as StickerShape] || "rounded-2xl";
+  const shapeClass = getShapeClass(shape);
 
   return (
     <Link
       to={href}
+      onContextMenu={onContextMenu}
       className={cn(
         "group flex items-center justify-center border-4 border-white cursor-pointer no-underline hover:no-underline",
         "w-28 h-28 sm:w-32 sm:h-32",
@@ -49,7 +36,8 @@ export function Sticker({
       )}
       style={{
         backgroundColor: color,
-        boxShadow: "0 2px 6px rgba(61,53,41,0.08), 0 1px 2px rgba(61,53,41,0.06)",
+        boxShadow:
+          "0 2px 6px rgba(61,53,41,0.08), 0 1px 2px rgba(61,53,41,0.06)",
         ...style,
       }}
     >

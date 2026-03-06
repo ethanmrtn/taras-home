@@ -26,7 +26,7 @@ export const seedData = mutation({
     const bathroom = await ctx.db.insert("rooms", {
       name: "Bathroom",
       color: "#FFDAC1",
-      shape: "cloud",
+      shape: "wonky",
     });
 
     // Categories with rooms
@@ -51,13 +51,13 @@ export const seedData = mutation({
     const livingDecor = await ctx.db.insert("categories", {
       name: "Decor",
       color: "#b8c4e8",
-      shape: "cloud",
+      shape: "wonky",
       room: livingRoom,
     });
     const bedroomBedding = await ctx.db.insert("categories", {
       name: "Bedding",
       color: "#f0a0b0",
-      shape: "heart",
+      shape: "diamond",
       room: bedroom,
     });
 
@@ -65,7 +65,7 @@ export const seedData = mutation({
     const cleaning = await ctx.db.insert("categories", {
       name: "Cleaning",
       color: "#E2C6E6",
-      shape: "star",
+      shape: "leaf",
     });
     const tools = await ctx.db.insert("categories", {
       name: "Tools",
@@ -121,7 +121,7 @@ export const seedData = mutation({
     await ctx.db.insert("items", {
       name: "Cushions",
       color: "#FFB7C5",
-      shape: "heart",
+      shape: "diamond",
       merchant: kmart,
       price: 15.0,
       url: "https://kmart.com.au/cushions",
@@ -131,7 +131,7 @@ export const seedData = mutation({
     await ctx.db.insert("items", {
       name: "Duvet Set",
       color: "#f0a0b0",
-      shape: "cloud",
+      shape: "wonky",
       merchant: ikea,
       price: 79.99,
       url: "https://ikea.com/duvet",
@@ -141,7 +141,7 @@ export const seedData = mutation({
     await ctx.db.insert("items", {
       name: "Sponges",
       color: "#E2C6E6",
-      shape: "star",
+      shape: "leaf",
       merchant: kmart,
       price: 4.5,
       url: "https://kmart.com.au/sponges",

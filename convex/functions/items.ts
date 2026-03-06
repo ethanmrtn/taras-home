@@ -18,6 +18,31 @@ export const createItem = mutation({
   },
 });
 
+export const update = mutation({
+  args: {
+    id: v.id("items"),
+    name: v.string(),
+    color: v.string(),
+    shape: v.string(),
+    merchant: v.id("merchants"),
+    price: v.float64(),
+    url: v.string(),
+    category: v.optional(v.id("categories")),
+    room: v.optional(v.id("rooms")),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...fields } = args;
+    await ctx.db.patch(id, fields);
+  },
+});
+
+export const remove = mutation({
+  args: { id: v.id("items") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+  },
+});
+
 export const getById = query({
   args: { id: v.id("items") },
   handler: async (ctx, args) => {

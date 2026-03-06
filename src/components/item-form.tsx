@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import type { Id } from "../../convex/_generated/dataModel";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "#/components/ui/field";
@@ -7,22 +10,23 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "#/components/ui/dialog";
 import { cn } from "#/lib/utils";
 import { STICKER_COLORS, STICKER_SHAPES } from "#/lib/sticker-options";
 
-type StickerFormData = {
+export type ItemFormData = {
   name: string;
   color: string;
   shape: string;
+  price: number;
+  url: string;
+  merchant: Id<"merchants">;
 };
 
-export function StickerFormDialog({
+export function ItemFormDialog({
   open,
   onOpenChange,
   title,
-  description,
   initial,
   onSubmit,
   submitLabel = "Create",
@@ -30,34 +34,54 @@ export function StickerFormDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  description?: string;
-  initial?: StickerFormData;
-  onSubmit: (data: StickerFormData) => void;
+  initial?: Partial<ItemFormData>;
+  onSubmit: (data: ItemFormData) => void;
   submitLabel?: string;
 }) {
+  const merchants = useQuery(api.functions.merchants.get);
+
   const [name, setName] = useState(initial?.name ?? "");
   const [color, setColor] = useState(initial?.color ?? STICKER_COLORS[0].value);
   const [shape, setShape] = useState(initial?.shape ?? STICKER_SHAPES[0].value);
+  const [price, setPrice] = useState(initial?.price?.toString() ?? "");
+  const [url, setUrl] = useState(initial?.url ?? "");
+  const [merchant, setMerchant] = useState<Id<"merchants"> | "">(
+    initial?.merchant ?? "",
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
-    onSubmit({ name: name.trim(), color, shape });
+    if (!name.trim() || !merchant) return;
+    onSubmit({
+      name: name.trim(),
+      color,
+      shape,
+      price: Number.parseFloat(price) || 0,
+      url: url.trim(),
+      merchant: merchant as Id<"merchants">,
+    });
     if (!initial) {
       setName("");
+      setPrice("");
+      setUrl("");
     }
   };
 
-  // Reset form when dialog opens with new initial values
   const handleOpenChange = (next: boolean) => {
     if (next && initial) {
-      setName(initial.name);
-      setColor(initial.color);
-      setShape(initial.shape);
+      setName(initial.name ?? "");
+      setColor(initial.color ?? STICKER_COLORS[0].value);
+      setShape(initial.shape ?? STICKER_SHAPES[0].value);
+      setPrice(initial.price?.toString() ?? "");
+      setUrl(initial.url ?? "");
+      setMerchant(initial.merchant ?? "");
     } else if (next && !initial) {
       setName("");
       setColor(STICKER_COLORS[0].value);
       setShape(STICKER_SHAPES[0].value);
+      setPrice("");
+      setUrl("");
+      setMerchant("");
     }
     onOpenChange(next);
   };
@@ -69,7 +93,6 @@ export function StickerFormDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader className="items-center">
-          {/* Live preview */}
           <div
             className={cn(
               "w-20 h-20 border-4 border-white flex items-center justify-center mb-2",
@@ -86,19 +109,63 @@ export function StickerFormDialog({
             </span>
           </div>
           <DialogTitle className="font-display">{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="sticker-name">Name</FieldLabel>
+              <FieldLabel htmlFor="item-name">Name</FieldLabel>
               <Input
-                id="sticker-name"
+                id="item-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Kitchen"
+                placeholder="e.g. Toaster"
                 autoFocus
+              />
+            </Field>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Field>
+                <FieldLabel htmlFor="item-price">Price</FieldLabel>
+                <Input
+                  id="item-price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="0.00"
+                />
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="item-merchant">Store</FieldLabel>
+                <select
+                  id="item-merchant"
+                  value={merchant}
+                  onChange={(e) =>
+                    setMerchant(e.target.value as Id<"merchants">)
+                  }
+                  className="sticker flex h-9 w-full bg-white px-3 py-1 text-sm font-display"
+                >
+                  <option value="">Select...</option>
+                  {merchants?.map((m) => (
+                    <option key={m._id} value={m._id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+
+            <Field>
+              <FieldLabel htmlFor="item-url">URL</FieldLabel>
+              <Input
+                id="item-url"
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://..."
               />
             </Field>
 
