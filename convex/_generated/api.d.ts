@@ -13,6 +13,7 @@ import type * as functions_ideas from "../functions/ideas.js";
 import type * as functions_items from "../functions/items.js";
 import type * as functions_merchants from "../functions/merchants.js";
 import type * as functions_rooms from "../functions/rooms.js";
+import type * as functions_seed from "../functions/seed.js";
 import type * as http from "../http.js";
 
 import type {
@@ -27,6 +28,7 @@ declare const fullApi: ApiFromModules<{
   "functions/items": typeof functions_items;
   "functions/merchants": typeof functions_merchants;
   "functions/rooms": typeof functions_rooms;
+  "functions/seed": typeof functions_seed;
   http: typeof http;
 }>;
 

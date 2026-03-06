@@ -9,7 +9,9 @@ export function LoginForm({
   className,
   redirectTo,
   ...props
-}: React.ComponentProps<"div"> & { redirectTo?: string }) {
+}: React.ComponentProps<"div"> & {
+  redirectTo?: string;
+}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -27,19 +29,19 @@ export function LoginForm({
       });
       if (result.error) {
         setError(result.error.message || "Sign in failed");
+        setLoading(false);
       } else {
         window.location.href = redirectTo || "/";
       }
     } catch {
       setError("An unexpected error occurred");
-    } finally {
       setLoading(false);
     }
   };
 
   return (
     <div className={cn("flex flex-col", className)} {...props}>
-      <h1 className="font-display text-3xl font-bold mb-8 text-center">
+      <h1 className="font-display text-5xl font-bold mb-8 text-center">
         Tara's home
       </h1>
       <form onSubmit={handleSubmit}>

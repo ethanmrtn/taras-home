@@ -13,6 +13,9 @@ import { Route as AppLoginRouteImport } from './routes/_app/login'
 import { Route as AppAuthenticatedRouteImport } from './routes/_app/_authenticated'
 import { Route as AppAuthenticatedIndexRouteImport } from './routes/_app/_authenticated/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AppAuthenticatedRoomsRoomIdRouteImport } from './routes/_app/_authenticated/rooms/$roomId'
+import { Route as AppAuthenticatedItemsItemIdRouteImport } from './routes/_app/_authenticated/items/$itemId'
+import { Route as AppAuthenticatedCategoriesCategoryIdRouteImport } from './routes/_app/_authenticated/categories/$categoryId'
 
 const AppLoginRoute = AppLoginRouteImport.update({
   id: '/_app/login',
@@ -33,16 +36,40 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppAuthenticatedRoomsRoomIdRoute =
+  AppAuthenticatedRoomsRoomIdRouteImport.update({
+    id: '/rooms/$roomId',
+    path: '/rooms/$roomId',
+    getParentRoute: () => AppAuthenticatedRoute,
+  } as any)
+const AppAuthenticatedItemsItemIdRoute =
+  AppAuthenticatedItemsItemIdRouteImport.update({
+    id: '/items/$itemId',
+    path: '/items/$itemId',
+    getParentRoute: () => AppAuthenticatedRoute,
+  } as any)
+const AppAuthenticatedCategoriesCategoryIdRoute =
+  AppAuthenticatedCategoriesCategoryIdRouteImport.update({
+    id: '/categories/$categoryId',
+    path: '/categories/$categoryId',
+    getParentRoute: () => AppAuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppAuthenticatedIndexRoute
   '/login': typeof AppLoginRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/categories/$categoryId': typeof AppAuthenticatedCategoriesCategoryIdRoute
+  '/items/$itemId': typeof AppAuthenticatedItemsItemIdRoute
+  '/rooms/$roomId': typeof AppAuthenticatedRoomsRoomIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof AppLoginRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/': typeof AppAuthenticatedIndexRoute
+  '/categories/$categoryId': typeof AppAuthenticatedCategoriesCategoryIdRoute
+  '/items/$itemId': typeof AppAuthenticatedItemsItemIdRoute
+  '/rooms/$roomId': typeof AppAuthenticatedRoomsRoomIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -50,18 +77,36 @@ export interface FileRoutesById {
   '/_app/login': typeof AppLoginRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/_app/_authenticated/': typeof AppAuthenticatedIndexRoute
+  '/_app/_authenticated/categories/$categoryId': typeof AppAuthenticatedCategoriesCategoryIdRoute
+  '/_app/_authenticated/items/$itemId': typeof AppAuthenticatedItemsItemIdRoute
+  '/_app/_authenticated/rooms/$roomId': typeof AppAuthenticatedRoomsRoomIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/api/auth/$'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/api/auth/$'
+    | '/categories/$categoryId'
+    | '/items/$itemId'
+    | '/rooms/$roomId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/api/auth/$' | '/'
+  to:
+    | '/login'
+    | '/api/auth/$'
+    | '/'
+    | '/categories/$categoryId'
+    | '/items/$itemId'
+    | '/rooms/$roomId'
   id:
     | '__root__'
     | '/_app/_authenticated'
     | '/_app/login'
     | '/api/auth/$'
     | '/_app/_authenticated/'
+    | '/_app/_authenticated/categories/$categoryId'
+    | '/_app/_authenticated/items/$itemId'
+    | '/_app/_authenticated/rooms/$roomId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -100,15 +145,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/_authenticated/rooms/$roomId': {
+      id: '/_app/_authenticated/rooms/$roomId'
+      path: '/rooms/$roomId'
+      fullPath: '/rooms/$roomId'
+      preLoaderRoute: typeof AppAuthenticatedRoomsRoomIdRouteImport
+      parentRoute: typeof AppAuthenticatedRoute
+    }
+    '/_app/_authenticated/items/$itemId': {
+      id: '/_app/_authenticated/items/$itemId'
+      path: '/items/$itemId'
+      fullPath: '/items/$itemId'
+      preLoaderRoute: typeof AppAuthenticatedItemsItemIdRouteImport
+      parentRoute: typeof AppAuthenticatedRoute
+    }
+    '/_app/_authenticated/categories/$categoryId': {
+      id: '/_app/_authenticated/categories/$categoryId'
+      path: '/categories/$categoryId'
+      fullPath: '/categories/$categoryId'
+      preLoaderRoute: typeof AppAuthenticatedCategoriesCategoryIdRouteImport
+      parentRoute: typeof AppAuthenticatedRoute
+    }
   }
 }
 
 interface AppAuthenticatedRouteChildren {
   AppAuthenticatedIndexRoute: typeof AppAuthenticatedIndexRoute
+  AppAuthenticatedCategoriesCategoryIdRoute: typeof AppAuthenticatedCategoriesCategoryIdRoute
+  AppAuthenticatedItemsItemIdRoute: typeof AppAuthenticatedItemsItemIdRoute
+  AppAuthenticatedRoomsRoomIdRoute: typeof AppAuthenticatedRoomsRoomIdRoute
 }
 
 const AppAuthenticatedRouteChildren: AppAuthenticatedRouteChildren = {
   AppAuthenticatedIndexRoute: AppAuthenticatedIndexRoute,
+  AppAuthenticatedCategoriesCategoryIdRoute:
+    AppAuthenticatedCategoriesCategoryIdRoute,
+  AppAuthenticatedItemsItemIdRoute: AppAuthenticatedItemsItemIdRoute,
+  AppAuthenticatedRoomsRoomIdRoute: AppAuthenticatedRoomsRoomIdRoute,
 }
 
 const AppAuthenticatedRouteWithChildren =

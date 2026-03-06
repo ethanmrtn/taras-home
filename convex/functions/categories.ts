@@ -13,6 +13,27 @@ export const createCategory = mutation({
   },
 });
 
+export const update = mutation({
+  args: {
+    id: v.id("categories"),
+    name: v.string(),
+    color: v.string(),
+    shape: v.string(),
+    room: v.optional(v.id("rooms")),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...fields } = args;
+    await ctx.db.patch(id, fields);
+  },
+});
+
+export const remove = mutation({
+  args: { id: v.id("categories") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+  },
+});
+
 export const get = query({
   args: {},
   handler: async (ctx) => {
@@ -27,5 +48,13 @@ export const getByRoom = query({
       .query("categories")
       .withIndex("by_room_id", (q) => q.eq("room", args.roomId))
       .collect();
+  },
+});
+
+export const getWithoutRoom = query({
+  args: {},
+  handler: async (ctx) => {
+    const all = await ctx.db.query("categories").collect();
+    return all.filter((c) => !c.room);
   },
 });

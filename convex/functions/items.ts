@@ -18,6 +18,13 @@ export const createItem = mutation({
   },
 });
 
+export const getById = query({
+  args: { id: v.id("items") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
 export const getByCategory = query({
   args: { categoryId: v.id("categories") },
   handler: async (ctx, args) => {
