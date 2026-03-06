@@ -14,6 +14,7 @@ import { Route as AppAuthenticatedRouteImport } from './routes/_app/_authenticat
 import { Route as AppAuthenticatedIndexRouteImport } from './routes/_app/_authenticated/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AppAuthenticatedRoomsRoomIdRouteImport } from './routes/_app/_authenticated/rooms/$roomId'
+import { Route as AppAuthenticatedMerchantsMerchantIdRouteImport } from './routes/_app/_authenticated/merchants/$merchantId'
 import { Route as AppAuthenticatedItemsItemIdRouteImport } from './routes/_app/_authenticated/items/$itemId'
 import { Route as AppAuthenticatedCategoriesCategoryIdRouteImport } from './routes/_app/_authenticated/categories/$categoryId'
 
@@ -42,6 +43,12 @@ const AppAuthenticatedRoomsRoomIdRoute =
     path: '/rooms/$roomId',
     getParentRoute: () => AppAuthenticatedRoute,
   } as any)
+const AppAuthenticatedMerchantsMerchantIdRoute =
+  AppAuthenticatedMerchantsMerchantIdRouteImport.update({
+    id: '/merchants/$merchantId',
+    path: '/merchants/$merchantId',
+    getParentRoute: () => AppAuthenticatedRoute,
+  } as any)
 const AppAuthenticatedItemsItemIdRoute =
   AppAuthenticatedItemsItemIdRouteImport.update({
     id: '/items/$itemId',
@@ -61,6 +68,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/categories/$categoryId': typeof AppAuthenticatedCategoriesCategoryIdRoute
   '/items/$itemId': typeof AppAuthenticatedItemsItemIdRoute
+  '/merchants/$merchantId': typeof AppAuthenticatedMerchantsMerchantIdRoute
   '/rooms/$roomId': typeof AppAuthenticatedRoomsRoomIdRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +77,7 @@ export interface FileRoutesByTo {
   '/': typeof AppAuthenticatedIndexRoute
   '/categories/$categoryId': typeof AppAuthenticatedCategoriesCategoryIdRoute
   '/items/$itemId': typeof AppAuthenticatedItemsItemIdRoute
+  '/merchants/$merchantId': typeof AppAuthenticatedMerchantsMerchantIdRoute
   '/rooms/$roomId': typeof AppAuthenticatedRoomsRoomIdRoute
 }
 export interface FileRoutesById {
@@ -79,6 +88,7 @@ export interface FileRoutesById {
   '/_app/_authenticated/': typeof AppAuthenticatedIndexRoute
   '/_app/_authenticated/categories/$categoryId': typeof AppAuthenticatedCategoriesCategoryIdRoute
   '/_app/_authenticated/items/$itemId': typeof AppAuthenticatedItemsItemIdRoute
+  '/_app/_authenticated/merchants/$merchantId': typeof AppAuthenticatedMerchantsMerchantIdRoute
   '/_app/_authenticated/rooms/$roomId': typeof AppAuthenticatedRoomsRoomIdRoute
 }
 export interface FileRouteTypes {
@@ -89,6 +99,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/categories/$categoryId'
     | '/items/$itemId'
+    | '/merchants/$merchantId'
     | '/rooms/$roomId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -97,6 +108,7 @@ export interface FileRouteTypes {
     | '/'
     | '/categories/$categoryId'
     | '/items/$itemId'
+    | '/merchants/$merchantId'
     | '/rooms/$roomId'
   id:
     | '__root__'
@@ -106,6 +118,7 @@ export interface FileRouteTypes {
     | '/_app/_authenticated/'
     | '/_app/_authenticated/categories/$categoryId'
     | '/_app/_authenticated/items/$itemId'
+    | '/_app/_authenticated/merchants/$merchantId'
     | '/_app/_authenticated/rooms/$roomId'
   fileRoutesById: FileRoutesById
 }
@@ -152,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAuthenticatedRoomsRoomIdRouteImport
       parentRoute: typeof AppAuthenticatedRoute
     }
+    '/_app/_authenticated/merchants/$merchantId': {
+      id: '/_app/_authenticated/merchants/$merchantId'
+      path: '/merchants/$merchantId'
+      fullPath: '/merchants/$merchantId'
+      preLoaderRoute: typeof AppAuthenticatedMerchantsMerchantIdRouteImport
+      parentRoute: typeof AppAuthenticatedRoute
+    }
     '/_app/_authenticated/items/$itemId': {
       id: '/_app/_authenticated/items/$itemId'
       path: '/items/$itemId'
@@ -173,6 +193,7 @@ interface AppAuthenticatedRouteChildren {
   AppAuthenticatedIndexRoute: typeof AppAuthenticatedIndexRoute
   AppAuthenticatedCategoriesCategoryIdRoute: typeof AppAuthenticatedCategoriesCategoryIdRoute
   AppAuthenticatedItemsItemIdRoute: typeof AppAuthenticatedItemsItemIdRoute
+  AppAuthenticatedMerchantsMerchantIdRoute: typeof AppAuthenticatedMerchantsMerchantIdRoute
   AppAuthenticatedRoomsRoomIdRoute: typeof AppAuthenticatedRoomsRoomIdRoute
 }
 
@@ -181,6 +202,8 @@ const AppAuthenticatedRouteChildren: AppAuthenticatedRouteChildren = {
   AppAuthenticatedCategoriesCategoryIdRoute:
     AppAuthenticatedCategoriesCategoryIdRoute,
   AppAuthenticatedItemsItemIdRoute: AppAuthenticatedItemsItemIdRoute,
+  AppAuthenticatedMerchantsMerchantIdRoute:
+    AppAuthenticatedMerchantsMerchantIdRoute,
   AppAuthenticatedRoomsRoomIdRoute: AppAuthenticatedRoomsRoomIdRoute,
 }
 

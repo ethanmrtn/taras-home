@@ -79,12 +79,14 @@ export const seedData = mutation({
       url: "https://ikea.com",
       color: "#0058a3",
       shape: "rounded-square",
+      rooms: [kitchen, livingRoom, bedroom],
     });
     const kmart = await ctx.db.insert("merchants", {
       name: "Kmart",
       url: "https://kmart.com.au",
       color: "#e31837",
       shape: "circle",
+      rooms: [kitchen, livingRoom],
     });
 
     // Items

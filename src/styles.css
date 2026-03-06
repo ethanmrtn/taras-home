@@ -74,6 +74,16 @@
   box-sizing: border-box;
 }
 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 html,
 body,
 #app {
@@ -253,6 +263,26 @@ a {
   animation: wobble 400ms ease-in-out;
 }
 
+/* ── Move-mode shake ── */
+@keyframes sticker-shake {
+  0%, 100% { rotate: 0deg; translate: 0 0; }
+  15% { rotate: -2deg; translate: -1px 0; }
+  30% { rotate: 2deg; translate: 1px 0; }
+  45% { rotate: -1.5deg; translate: -1px 0; }
+  60% { rotate: 1.5deg; translate: 1px 0; }
+  75% { rotate: -1deg; }
+  90% { rotate: 1deg; }
+}
+
+.sticker-shake {
+  animation: sticker-shake 0.5s ease-in-out infinite;
+  animation-delay: calc(var(--stagger, 0) * 80ms);
+}
+
+.move-mode-banner {
+  animation: page-fade-in 200ms ease-out both;
+}
+
 /* ── Scalloped border ── */
 .scallop-border {
   --scallop-size: 10px;
@@ -310,7 +340,8 @@ a {
   .sticker-enter,
   .page-enter,
   .sticker-bounce,
-  .item-enter {
+  .item-enter,
+  .sticker-shake {
     animation: none !important;
     opacity: 1 !important;
   }

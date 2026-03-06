@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
@@ -9,6 +9,7 @@ import { StickerPage } from "#/components/sticker-page";
 import { StickerFormDialog } from "#/components/sticker-form";
 import { FloatingMenu } from "#/components/floating-menu";
 import { DeleteConfirmDialog } from "#/components/delete-confirm-dialog";
+import { MoveBanner } from "#/components/move-banner";
 import { useContextMenu } from "#/hooks/use-context-menu";
 
 export const Route = createFileRoute("/_app/_authenticated/")({
@@ -16,8 +17,8 @@ export const Route = createFileRoute("/_app/_authenticated/")({
 });
 
 type StickerTarget = {
-  type: "room" | "category";
-  id: Id<"rooms"> | Id<"categories">;
+  type: "room" | "category" | "merchant";
+  id: Id<"rooms"> | Id<"categories"> | Id<"merchants">;
   name: string;
   color: string;
   shape: string;
@@ -26,21 +27,40 @@ type StickerTarget = {
 function HomePage() {
   const rooms = useQuery(api.functions.rooms.get);
   const roomlessCategories = useQuery(api.functions.categories.getWithoutRoom);
+  const roomlessMerchants = useQuery(api.functions.merchants.getWithoutRoom);
   const createRoom = useMutation(api.functions.rooms.createRoom);
   const updateRoom = useMutation(api.functions.rooms.update);
   const removeRoom = useMutation(api.functions.rooms.remove);
   const createCategory = useMutation(api.functions.categories.createCategory);
   const updateCategory = useMutation(api.functions.categories.update);
   const removeCategory = useMutation(api.functions.categories.remove);
+  const createMerchant = useMutation(api.functions.merchants.create);
+  const updateMerchant = useMutation(api.functions.merchants.update);
+  const removeMerchant = useMutation(api.functions.merchants.remove);
 
   const menu = useContextMenu<StickerTarget>();
-  const [createType, setCreateType] = useState<"room" | "category" | null>(
-    null,
-  );
+  const [createType, setCreateType] = useState<
+    "room" | "category" | "merchant" | null
+  >(null);
   const [editing, setEditing] = useState<StickerTarget | null>(null);
   const [deleting, setDeleting] = useState<StickerTarget | null>(null);
+  const [moving, setMoving] = useState<StickerTarget | null>(null);
 
-  if (rooms === undefined || roomlessCategories === undefined) {
+  // Escape key cancels move mode
+  useEffect(() => {
+    if (!moving) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMoving(null);
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [moving]);
+
+  if (
+    rooms === undefined ||
+    roomlessCategories === undefined ||
+    roomlessMerchants === undefined
+  ) {
     return (
       <main className="page-wrap py-8">
         <h1 className="font-display text-3xl font-bold text-center mb-10">
@@ -51,12 +71,94 @@ function HomePage() {
     );
   }
 
+  const allStickers = [
+    ...rooms.map((room) => ({
+      type: "room" as const,
+      id: room._id as string,
+      name: room.name,
+      color: room.color,
+      shape: room.shape,
+      href: `/rooms/${room._id}`,
+    })),
+    ...roomlessCategories.map((cat) => ({
+      type: "category" as const,
+      id: cat._id as string,
+      name: cat.name,
+      color: cat.color,
+      shape: cat.shape,
+      href: `/categories/${cat._id}`,
+    })),
+    ...roomlessMerchants.map((m) => ({
+      type: "merchant" as const,
+      id: m._id as string,
+      name: m.name,
+      color: m.color,
+      shape: m.shape,
+      href: `/merchants/${m._id}`,
+    })),
+  ];
+
+  // Move targets: categories can move into rooms, merchants can move into rooms or categories
+  const isMoveTarget = (s: (typeof allStickers)[number]) => {
+    if (!moving) return false;
+    if (s.id === moving.id) return false;
+    if (moving.type === "category") return s.type === "room";
+    if (moving.type === "merchant")
+      return s.type === "room" || s.type === "category";
+    return false;
+  };
+
+  const handleMoveInto = async (targetId: string, targetType: string) => {
+    if (!moving) return;
+    if (moving.type === "category" && targetType === "room") {
+      await updateCategory({
+        id: moving.id as Id<"categories">,
+        name: moving.name,
+        color: moving.color,
+        shape: moving.shape,
+        room: targetId as Id<"rooms">,
+      });
+    } else if (moving.type === "merchant" && targetType === "room") {
+      const m = roomlessMerchants.find((m) => m._id === moving.id);
+      await updateMerchant({
+        id: moving.id as Id<"merchants">,
+        name: moving.name,
+        color: moving.color,
+        shape: moving.shape,
+        url: m?.url ?? "",
+        rooms: [...(m?.rooms ?? []), targetId as Id<"rooms">],
+        categories: m?.categories,
+      });
+    } else if (moving.type === "merchant" && targetType === "category") {
+      const m = roomlessMerchants.find((m) => m._id === moving.id);
+      const cat = roomlessCategories.find((c) => c._id === targetId);
+      await updateMerchant({
+        id: moving.id as Id<"merchants">,
+        name: moving.name,
+        color: moving.color,
+        shape: moving.shape,
+        url: m?.url ?? "",
+        rooms: cat?.room ? [...(m?.rooms ?? []), cat.room] : m?.rooms,
+        categories: [...(m?.categories ?? []), targetId as Id<"categories">],
+      });
+    }
+    setMoving(null);
+  };
+
   const menuItems = menu.state.target
     ? [
         {
           label: `Edit ${menu.state.target.type}`,
           onClick: () => setEditing(menu.state.target),
         },
+        ...(menu.state.target.type !== "room"
+          ? [
+              {
+                label: `Move ${menu.state.target.type}`,
+                onClick: () => setMoving(menu.state.target),
+              },
+            ]
+          : []),
         { separator: true as const },
         {
           label: `Delete ${menu.state.target.type}`,
@@ -67,69 +169,67 @@ function HomePage() {
     : [
         { label: "New room", onClick: () => setCreateType("room") },
         { label: "New category", onClick: () => setCreateType("category") },
+        { label: "New merchant", onClick: () => setCreateType("merchant") },
       ];
 
   return (
     <main
       className="page-wrap py-8 page-enter"
-      onContextMenu={(e) => menu.handleContextMenu(e)}
+      onContextMenu={(e) => {
+        if (moving) {
+          e.preventDefault();
+          setMoving(null);
+          return;
+        }
+        menu.handleContextMenu(e);
+      }}
     >
       <h1 className="font-display text-3xl font-bold text-center mb-10">
         Tara's home
       </h1>
-      {rooms.length === 0 && roomlessCategories.length === 0 ? (
+
+      {allStickers.length === 0 ? (
         <p className="text-center text-muted-foreground py-20">
-          Right-click to add rooms or categories
+          Right-click to get started
         </p>
       ) : (
         <StickerPage seed={7}>
-          {[
-            ...rooms.map((room) => (
-              <Sticker
-                key={room._id}
-                name={room.name}
-                color={room.color}
-                shape={room.shape}
-                href={`/rooms/${room._id}`}
-                onContextMenu={(e) =>
-                  menu.handleContextMenu(e, {
-                    type: "room",
-                    id: room._id,
-                    name: room.name,
-                    color: room.color,
-                    shape: room.shape,
-                  })
-                }
-              />
-            )),
-            ...roomlessCategories.map((cat) => (
-              <Sticker
-                key={cat._id}
-                name={cat.name}
-                color={cat.color}
-                shape={cat.shape}
-                href={`/categories/${cat._id}`}
-                onContextMenu={(e) =>
-                  menu.handleContextMenu(e, {
-                    type: "category",
-                    id: cat._id,
-                    name: cat.name,
-                    color: cat.color,
-                    shape: cat.shape,
-                  })
-                }
-              />
-            )),
-          ]}
+          {allStickers.map((s) => (
+            <Sticker
+              key={s.id}
+              name={s.name}
+              color={s.color}
+              shape={s.shape}
+              href={s.href}
+              shaking={isMoveTarget(s)}
+              onMoveTarget={() => handleMoveInto(s.id, s.type)}
+              dimmed={moving !== null && !isMoveTarget(s) && s.id !== moving.id}
+              onContextMenu={(e) =>
+                menu.handleContextMenu(e, {
+                  type: s.type,
+                  id: s.id as Id<"rooms"> | Id<"categories"> | Id<"merchants">,
+                  name: s.name,
+                  color: s.color,
+                  shape: s.shape,
+                })
+              }
+            />
+          ))}
         </StickerPage>
       )}
 
-      <FloatingMenu
-        open={menu.state.open}
-        position={menu.state.position}
-        items={menuItems}
-        onClose={menu.close}
-      />
+      {moving && (
+        <MoveBanner name={moving.name} onCancel={() => setMoving(null)} />
+      )}
+
+      {!moving && (
+        <FloatingMenu
+          open={menu.state.open}
+          position={menu.state.position}
+          items={menuItems}
+          onClose={menu.close}
+        />
+      )}
 
       <StickerFormDialog
         open={createType === "room"}
@@ -152,6 +252,16 @@ function HomePage() {
       />
 
       <StickerFormDialog
+        open={createType === "merchant"}
+        onOpenChange={(open) => !open && setCreateType(null)}
+        title="New merchant"
+        onSubmit={async (data) => {
+          await createMerchant({ ...data, url: "" });
+          setCreateType(null);
+        }}
+      />
+
+      <StickerFormDialog
         open={editing !== null}
         onOpenChange={(open) => !open && setEditing(null)}
         title={editing ? `Edit ${editing.type}` : "Edit"}
@@ -161,10 +271,19 @@ function HomePage() {
           if (!editing) return;
           if (editing.type === "room") {
             await updateRoom({ id: editing.id as Id<"rooms">, ...data });
-          } else {
+          } else if (editing.type === "category") {
             await updateCategory({
               id: editing.id as Id<"categories">,
               ...data,
+            });
+          } else {
+            const m = roomlessMerchants.find((m) => m._id === editing.id);
+            await updateMerchant({
+              id: editing.id as Id<"merchants">,
+              ...data,
+              url: m?.url ?? "",
+              rooms: m?.rooms,
+              categories: m?.categories,
             });
           }
           setEditing(null);
@@ -180,10 +299,10 @@ function HomePage() {
           if (!deleting) return;
           if (deleting.type === "room") {
             await removeRoom({ id: deleting.id as Id<"rooms"> });
+          } else if (deleting.type === "category") {
+            await removeCategory({ id: deleting.id as Id<"categories"> });
           } else {
-            await removeCategory({
-              id: deleting.id as Id<"categories">,
-            });
+            await removeMerchant({ id: deleting.id as Id<"merchants"> });
           }
           setDeleting(null);
         }}

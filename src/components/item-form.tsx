@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
@@ -28,6 +26,7 @@ export function ItemFormDialog({
   onOpenChange,
   title,
   initial,
+  merchantId,
   onSubmit,
   submitLabel = "Create",
 }: {
@@ -35,30 +34,26 @@ export function ItemFormDialog({
   onOpenChange: (open: boolean) => void;
   title: string;
   initial?: Partial<ItemFormData>;
+  merchantId: Id<"merchants">;
   onSubmit: (data: ItemFormData) => void;
   submitLabel?: string;
 }) {
-  const merchants = useQuery(api.functions.merchants.get);
-
   const [name, setName] = useState(initial?.name ?? "");
   const [color, setColor] = useState(initial?.color ?? STICKER_COLORS[0].value);
   const [shape, setShape] = useState(initial?.shape ?? STICKER_SHAPES[0].value);
   const [price, setPrice] = useState(initial?.price?.toString() ?? "");
   const [url, setUrl] = useState(initial?.url ?? "");
-  const [merchant, setMerchant] = useState<Id<"merchants"> | "">(
-    initial?.merchant ?? "",
-  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !merchant) return;
+    if (!name.trim()) return;
     onSubmit({
       name: name.trim(),
       color,
       shape,
       price: Number.parseFloat(price) || 0,
       url: url.trim(),
-      merchant: merchant as Id<"merchants">,
+      merchant: merchantId,
     });
     if (!initial) {
       setName("");
@@ -74,14 +69,12 @@ export function ItemFormDialog({
       setShape(initial.shape ?? STICKER_SHAPES[0].value);
       setPrice(initial.price?.toString() ?? "");
       setUrl(initial.url ?? "");
-      setMerchant(initial.merchant ?? "");
     } else if (next && !initial) {
       setName("");
       setColor(STICKER_COLORS[0].value);
       setShape(STICKER_SHAPES[0].value);
       setPrice("");
       setUrl("");
-      setMerchant("");
     }
     onOpenChange(next);
   };
@@ -91,7 +84,7 @@ export function ItemFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader className="items-center">
           <div
             className={cn(
@@ -112,116 +105,110 @@ export function ItemFormDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="item-name">Name</FieldLabel>
-              <Input
-                id="item-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Toaster"
-                autoFocus
-              />
-            </Field>
-
-            <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Left column — text fields */}
+            <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="item-price">Price</FieldLabel>
+                <FieldLabel htmlFor="item-name">Name</FieldLabel>
                 <Input
-                  id="item-price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder="0.00"
+                  id="item-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Toaster"
+                  autoFocus
                 />
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="item-merchant">Store</FieldLabel>
-                <select
-                  id="item-merchant"
-                  value={merchant}
-                  onChange={(e) =>
-                    setMerchant(e.target.value as Id<"merchants">)
-                  }
-                  className="sticker flex h-9 w-full bg-white px-3 py-1 text-sm font-display"
-                >
-                  <option value="">Select...</option>
-                  {merchants?.map((m) => (
-                    <option key={m._id} value={m._id}>
-                      {m.name}
-                    </option>
-                  ))}
-                </select>
+                <FieldLabel htmlFor="item-price">Price</FieldLabel>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-display font-semibold text-muted-foreground text-sm pointer-events-none">
+                    $
+                  </span>
+                  <Input
+                    id="item-price"
+                    inputMode="decimal"
+                    value={price}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === "" || /^\d*\.?\d{0,2}$/.test(v)) {
+                        setPrice(v);
+                      }
+                    }}
+                    placeholder="0.00"
+                    className="pl-7"
+                  />
+                </div>
               </Field>
-            </div>
 
-            <Field>
-              <FieldLabel htmlFor="item-url">URL</FieldLabel>
-              <Input
-                id="item-url"
-                type="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://..."
-              />
-            </Field>
+              <Field>
+                <FieldLabel htmlFor="item-url">URL</FieldLabel>
+                <Input
+                  id="item-url"
+                  type="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://..."
+                />
+              </Field>
+            </FieldGroup>
 
-            <Field>
-              <FieldLabel>Color</FieldLabel>
-              <div className="flex flex-wrap gap-2">
-                {STICKER_COLORS.map((c) => (
-                  <button
-                    key={c.value}
-                    type="button"
-                    onClick={() => setColor(c.value)}
-                    className={cn(
-                      "w-8 h-8 rounded-full border-2 cursor-pointer transition-transform hover:scale-110",
-                      color === c.value
-                        ? "border-foreground scale-110"
-                        : "border-white",
-                    )}
-                    style={{
-                      backgroundColor: c.value,
-                      boxShadow: "0 1px 3px rgba(61,53,41,0.1)",
-                    }}
-                    title={c.name}
-                  />
-                ))}
-              </div>
-            </Field>
+            {/* Right column — visual pickers */}
+            <FieldGroup>
+              <Field>
+                <FieldLabel>Color</FieldLabel>
+                <div className="flex flex-wrap gap-2">
+                  {STICKER_COLORS.map((c) => (
+                    <button
+                      key={c.value}
+                      type="button"
+                      onClick={() => setColor(c.value)}
+                      className={cn(
+                        "w-8 h-8 rounded-full border-2 cursor-pointer transition-transform hover:scale-110",
+                        color === c.value
+                          ? "border-foreground scale-110"
+                          : "border-white",
+                      )}
+                      style={{
+                        backgroundColor: c.value,
+                        boxShadow: "0 1px 3px rgba(61,53,41,0.1)",
+                      }}
+                      title={c.name}
+                    />
+                  ))}
+                </div>
+              </Field>
 
-            <Field>
-              <FieldLabel>Shape</FieldLabel>
-              <div className="flex flex-wrap gap-2">
-                {STICKER_SHAPES.map((s) => (
-                  <button
-                    key={s.value}
-                    type="button"
-                    onClick={() => setShape(s.value)}
-                    className={cn(
-                      "w-10 h-10 border-2 cursor-pointer transition-transform hover:scale-110",
-                      s.class,
-                      shape === s.value
-                        ? "border-foreground scale-110"
-                        : "border-white",
-                    )}
-                    style={{
-                      backgroundColor: color,
-                      boxShadow: "0 1px 3px rgba(61,53,41,0.1)",
-                    }}
-                    title={s.name}
-                  />
-                ))}
-              </div>
-            </Field>
+              <Field>
+                <FieldLabel>Shape</FieldLabel>
+                <div className="flex flex-wrap gap-2">
+                  {STICKER_SHAPES.map((s) => (
+                    <button
+                      key={s.value}
+                      type="button"
+                      onClick={() => setShape(s.value)}
+                      className={cn(
+                        "w-10 h-10 border-2 cursor-pointer transition-transform hover:scale-110",
+                        s.class,
+                        shape === s.value
+                          ? "border-foreground scale-110"
+                          : "border-white",
+                      )}
+                      style={{
+                        backgroundColor: color,
+                        boxShadow: "0 1px 3px rgba(61,53,41,0.1)",
+                      }}
+                      title={s.name}
+                    />
+                  ))}
+                </div>
+              </Field>
+            </FieldGroup>
+          </div>
 
-            <Button type="submit" className="w-full mt-2">
-              {submitLabel}
-            </Button>
-          </FieldGroup>
+          <Button type="submit" className="w-full mt-6">
+            {submitLabel}
+          </Button>
         </form>
       </DialogContent>
     </Dialog>

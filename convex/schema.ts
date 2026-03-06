@@ -23,15 +23,14 @@ export default defineSchema({
     .index("by_category_id", ["category"])
     .index("by_room_id", ["room"]),
   merchants: defineTable({
-    category: v.optional(v.id("categories")),
+    categories: v.optional(v.array(v.id("categories"))),
     color: v.string(),
     name: v.string(),
-    room: v.optional(v.id("rooms")),
+    notes: v.optional(v.string()),
+    rooms: v.optional(v.array(v.id("rooms"))),
     shape: v.string(),
     url: v.string(),
-  })
-    .index("by_category_id", ["category"])
-    .index("by_room_id", ["room"]),
+  }),
   ideas: defineTable({
     name: v.string(),
     color: v.string(),
