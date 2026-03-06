@@ -47,6 +47,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     ],
     links: [
       {
+        rel: "icon",
+        href: "/favicon.svg",
+        type: "image/svg+xml",
+      },
+      {
         rel: "stylesheet",
         href: appCss,
       },
@@ -75,18 +80,20 @@ function RootComponent() {
     <TanStackQueryProvider>
       <ConvexProvider initialToken={context.token}>
         <Outlet />
-        <TanStackDevtools
-          config={{
-            position: "bottom-right",
-          }}
-          plugins={[
-            {
-              name: "Tanstack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-            TanStackQueryDevtools,
-          ]}
-        />
+        {import.meta.env.DEV && (
+          <TanStackDevtools
+            config={{
+              position: "bottom-right",
+            }}
+            plugins={[
+              {
+                name: "Tanstack Router",
+                render: <TanStackRouterDevtoolsPanel />,
+              },
+              TanStackQueryDevtools,
+            ]}
+          />
+        )}
       </ConvexProvider>
     </TanStackQueryProvider>
   );

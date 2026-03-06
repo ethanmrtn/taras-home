@@ -14,3 +14,10 @@ todos.json
 
 # Local Netlify folder
 .netlify
+
+# Scaffolding artifacts
+.cta.json
+.cursorrules
+
+# Convex generated (regenerated on build)
+convex/_generated/

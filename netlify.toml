@@ -1,6 +1,7 @@
 [build]
-  command = "vite build"
-  dir = "dist/client"
+  command = "npx convex deploy --cmd 'vite build'"
+  publish = "dist/client"
+
 [dev]
   command = "npm run dev"
   targetPort = 3000
