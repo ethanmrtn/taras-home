@@ -10,6 +10,7 @@ import { StickerFormDialog } from "#/components/sticker-form";
 import { FloatingMenu } from "#/components/floating-menu";
 import { DeleteConfirmDialog } from "#/components/delete-confirm-dialog";
 import { MoveBanner } from "#/components/move-banner";
+import { MobileAddButton } from "#/components/mobile-add-button";
 import { useContextMenu } from "#/hooks/use-context-menu";
 
 export const Route = createFileRoute("/_app/_authenticated/rooms/$roomId")({
@@ -161,7 +162,7 @@ function RoomPage() {
 
       {stickers.length === 0 ? (
         <p className="text-center text-muted-foreground py-20">
-          Right-click to add a category or brand
+          Add a category or brand
         </p>
       ) : (
         <StickerPage seed={roomId.charCodeAt(0)}>
@@ -184,6 +185,18 @@ function RoomPage() {
                   shape: s.shape,
                 })
               }
+              onEditTap={(rect) =>
+                menu.openAt(
+                  { x: rect.right, y: rect.top },
+                  {
+                    type: s.type,
+                    id: s.id,
+                    name: s.name,
+                    color: s.color,
+                    shape: s.shape,
+                  },
+                )
+              }
             />
           ))}
         </StickerPage>
@@ -199,6 +212,15 @@ function RoomPage() {
           position={menu.state.position}
           items={menuItems}
           onClose={menu.close}
+        />
+      )}
+
+      {!moving && (
+        <MobileAddButton
+          items={[
+            { label: "New category", onClick: () => setCreateType("category") },
+            { label: "New brand", onClick: () => setCreateType("merchant") },
+          ]}
         />
       )}
 

@@ -22,6 +22,13 @@ export function useContextMenu<T>() {
     [],
   );
 
+  const openAt = useCallback(
+    (position: { x: number; y: number }, target: T | null = null) => {
+      setState({ open: true, position, target });
+    },
+    [],
+  );
+
   const close = useCallback(() => {
     setState((prev) => ({ ...prev, open: false }));
   }, []);
@@ -29,6 +36,7 @@ export function useContextMenu<T>() {
   return {
     state,
     handleContextMenu,
+    openAt,
     close,
   };
 }

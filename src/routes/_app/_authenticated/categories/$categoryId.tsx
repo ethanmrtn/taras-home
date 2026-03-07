@@ -9,6 +9,7 @@ import { StickerPage } from "#/components/sticker-page";
 import { StickerFormDialog } from "#/components/sticker-form";
 import { FloatingMenu } from "#/components/floating-menu";
 import { DeleteConfirmDialog } from "#/components/delete-confirm-dialog";
+import { MobileAddButton } from "#/components/mobile-add-button";
 import { useContextMenu } from "#/hooks/use-context-menu";
 
 export const Route = createFileRoute(
@@ -73,7 +74,7 @@ function CategoryPage() {
       </h1>
       {merchants.length === 0 ? (
         <p className="text-center text-muted-foreground py-20">
-          Right-click to add a brand
+          Add a brand
         </p>
       ) : (
         <StickerPage seed={categoryId.charCodeAt(0)}>
@@ -92,6 +93,17 @@ function CategoryPage() {
                   shape: m.shape,
                 })
               }
+              onEditTap={(rect) =>
+                menu.openAt(
+                  { x: rect.right, y: rect.top },
+                  {
+                    id: m._id,
+                    name: m.name,
+                    color: m.color,
+                    shape: m.shape,
+                  },
+                )
+              }
             />
           ))}
         </StickerPage>
@@ -102,6 +114,10 @@ function CategoryPage() {
         position={menu.state.position}
         items={menuItems}
         onClose={menu.close}
+      />
+
+      <MobileAddButton
+        items={[{ label: "New brand", onClick: () => setCreating(true) }]}
       />
 
       <StickerFormDialog

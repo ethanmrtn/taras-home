@@ -10,6 +10,7 @@ export function Sticker({
   className,
   style,
   onContextMenu,
+  onEditTap,
   shaking,
   onMoveTarget,
   dimmed,
@@ -22,6 +23,7 @@ export function Sticker({
   className?: string;
   style?: React.CSSProperties;
   onContextMenu?: (e: React.MouseEvent) => void;
+  onEditTap?: (rect: DOMRect) => void;
   shaking?: boolean;
   onMoveTarget?: () => void;
   dimmed?: boolean;
@@ -54,28 +56,48 @@ export function Sticker({
     </span>
   );
 
+  const editButton = onEditTap && (
+    <button
+      type="button"
+      className="touch-only absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-white border-2 border-border items-center justify-center text-xs font-bold text-muted-foreground shadow-sm z-10 cursor-pointer"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const rect = (e.currentTarget.parentElement as HTMLElement).getBoundingClientRect();
+        onEditTap(rect);
+      }}
+    >
+      ···
+    </button>
+  );
+
   // In move mode, shaking stickers become buttons instead of links
   if (shaking && onMoveTarget) {
     return (
-      <button
-        type="button"
-        onClick={onMoveTarget}
-        className={shared}
-        style={sharedStyle}
-      >
-        {label}
-      </button>
+      <div className="relative">
+        <button
+          type="button"
+          onClick={onMoveTarget}
+          className={shared}
+          style={sharedStyle}
+        >
+          {label}
+        </button>
+      </div>
     );
   }
 
   return (
-    <Link
-      to={href}
-      onContextMenu={onContextMenu}
-      className={shared}
-      style={sharedStyle}
-    >
-      {label}
-    </Link>
+    <div className="relative">
+      {editButton}
+      <Link
+        to={href}
+        onContextMenu={onContextMenu}
+        className={shared}
+        style={sharedStyle}
+      >
+        {label}
+      </Link>
+    </div>
   );
 }

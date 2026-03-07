@@ -11,6 +11,7 @@ import { StickerFormDialog } from "#/components/sticker-form";
 import { FloatingMenu } from "#/components/floating-menu";
 import { DeleteConfirmDialog } from "#/components/delete-confirm-dialog";
 import { MoveBanner } from "#/components/move-banner";
+import { MobileAddButton } from "#/components/mobile-add-button";
 import { useContextMenu } from "#/hooks/use-context-menu";
 
 const ADMIN_EMAIL = "ethan.martin@hey.com";
@@ -216,7 +217,7 @@ function HomePage() {
 
       {allStickers.length === 0 ? (
         <p className="text-center text-muted-foreground py-20">
-          Right-click to add your rooms
+          Add your first room
         </p>
       ) : (
         <StickerPage seed={7}>
@@ -239,6 +240,18 @@ function HomePage() {
                   shape: s.shape,
                 })
               }
+              onEditTap={(rect) =>
+                menu.openAt(
+                  { x: rect.right, y: rect.top },
+                  {
+                    type: s.type,
+                    id: s.id as Id<"rooms"> | Id<"categories"> | Id<"merchants">,
+                    name: s.name,
+                    color: s.color,
+                    shape: s.shape,
+                  },
+                )
+              }
             />
           ))}
         </StickerPage>
@@ -254,6 +267,16 @@ function HomePage() {
           position={menu.state.position}
           items={menuItems}
           onClose={menu.close}
+        />
+      )}
+
+      {!moving && (
+        <MobileAddButton
+          items={[
+            { label: "New room", onClick: () => setCreateType("room") },
+            { label: "New category", onClick: () => setCreateType("category") },
+            { label: "New brand", onClick: () => setCreateType("merchant") },
+          ]}
         />
       )}
 
